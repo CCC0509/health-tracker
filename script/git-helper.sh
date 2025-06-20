@@ -22,6 +22,10 @@ case "$GIT_MODE" in
     git add .
     git commit -m "$MSG"
     git push
+    if ! git push; then
+    echo "⚠️ 分支尚未設定上游，嘗試自動設定..."
+    git push --set-upstream origin $(git branch --show-current)
+  fi
     ;;
   3)
     echo "🔃 執行 git fetch + rebase"
