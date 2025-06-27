@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateNutrientDto {
@@ -18,10 +19,6 @@ export class CreateNutrientDto {
 
   @IsNumber()
   @Min(0)
-  calories: number;
-
-  @IsNumber()
-  @Min(0)
   carbs: number;
 
   @IsNumber()
@@ -39,5 +36,10 @@ export class CreateNutrientDto {
   source?: string;
 
   @IsString()
-  category?: string;
+  category: string;
+
+  @Expose()
+  get calories(): number {
+    return this.carbs * 4 + this.protein * 4 + this.fat * 9;
+  }
 }

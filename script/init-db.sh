@@ -47,7 +47,15 @@ case "$MODE" in
     npx prisma migrate dev --name "$COMMIT"
     ;;
   3)
-    npx prisma migrate deploy
+    echo "🧱 執行 migrate deploy..."
+    if ! npx prisma migrate deploy; then
+      echo "⚠️ 偵測到 P3005（資料庫已有資料但未設定 baseline）"
+      LAST_MIGRATION=$(ls -1 prisma/migrations | tail -n 1)
+      echo "🧩 自動標記已套用的 migration：$LAST_MIGRATION"
+      npx prisma migrate resolve --applied "$LAST_MIGRATION"
+      echo "🔁 重新執行 migrate deploy..."
+      npx prisma migrate deploy
+    fi
     ;;
   4)
     npx prisma db push

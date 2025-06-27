@@ -11,6 +11,7 @@ import {
 import { NutrientService } from './nutrient.service';
 import { CreateNutrientDto } from './dto/create-nutrient.dto';
 import { UpdateNutrientDto } from './dto/update-nutrient.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('nutrient')
 export class NutrientController {
@@ -23,7 +24,10 @@ export class NutrientController {
 
   @Get()
   findAll() {
-    return this.nutrientService.findAll();
+    const nutrients = this.nutrientService.findAll();
+    return plainToInstance(CreateNutrientDto, nutrients, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Get(':id')
