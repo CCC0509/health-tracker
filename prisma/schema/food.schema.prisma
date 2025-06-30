@@ -1,0 +1,42 @@
+//食物主分類(蛋豆魚肉類...)
+model FoodCategory {
+    id             Int               @id @default(autoincrement())
+    name           String            @unique
+    description    String?
+    subcategories  FoodSubcategory[]
+    approvalStatus ApprovalStatus    @default(PENDING)
+}
+
+//食物副分類(紅肉,白肉...)
+model FoodSubcategory {
+    id             Int            @id @default(autoincrement())
+    name           String
+    category       FoodCategory   @relation(fields: [categoryId], references: [id])
+    categoryId     Int
+    foods          Food[]
+    approvalStatus ApprovalStatus @default(PENDING)
+
+    @@unique([name, categoryId]) // 同一主分類下不能有重複子分類名
+}
+
+//食品名稱
+model Food {
+    id            Int             @id @default(autoincrement())
+    name          String          @unique
+    subcategory   FoodSubcategory @relation(fields: [subcategoryId], references: [id])
+    subcategoryId Int
+    dataSource    String? // e.g. "衛福部", "MyFitnessPal", "user_input"
+    nutrients     FoodNutrient[]
+    Brand         Brand?          @relation(fields: [brandId], references: [id])
+    brandId       Int?
+    description   String?
+
+    @@unique([name, brandId, subcategoryId]) // 食品名稱 + 品牌 + 子分類 不重複
+}
+
+//品牌管理獨立出來
+model Brand {
+    id    Int    @id @default(autoincrement())
+    name  String @unique
+    foods Food[]
+}

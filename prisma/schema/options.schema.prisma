@@ -1,0 +1,6 @@
+//資料增加申請是否通過
+enum ApprovalStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}

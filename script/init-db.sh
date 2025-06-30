@@ -32,6 +32,10 @@ echo "3) migrate deploy"
 echo "4) db push"
 read -p "> " MODE
 
+# schema merge
+echo "🧩 合併 Prisma schema..."
+npx prisma-merge -i prisma/schema -o prisma/schema.prisma
+
 # prisma generate
 echo "⚙️ 執行 prisma generate..."
 npx prisma generate

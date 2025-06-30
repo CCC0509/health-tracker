@@ -1,0 +1,31 @@
+//營養素分類
+model NutrientCategory {
+    id            Int                   @id @default(autoincrement())
+    name          String                @unique // e.g. "巨量營養素", "維生素"
+    subcategories NutrientSubcategory[]
+}
+
+//營養素子分類
+model NutrientSubcategory {
+    id           Int              @id @default(autoincrement())
+    name         String // e.g. "蛋白質", "維生素C"
+    unit         String // e.g. "g", "mg", "kcal"
+    category     NutrientCategory @relation(fields: [categoryId], references: [id])
+    categoryId   Int
+    FoodNutrient FoodNutrient[]
+
+    @@unique([name, categoryId]) // 同類別下不能有同名
+}
+
+//食物營養素表
+model FoodNutrient {
+    id                    Int                 @id @default(autoincrement())
+    food                  Food                @relation(fields: [foodId], references: [id])
+    foodId                Int
+    nutrientSubcategory   NutrientSubcategory @relation(fields: [nutrientSubcategoryId], references: [id])
+    nutrientSubcategoryId Int
+    servingSize           Float // 例如 50 表示每份 50g
+    servingUnit           String // 例如 g、ml、顆
+
+    @@unique([foodId, nutrientSubcategoryId]) // 避免重複記錄
+}
