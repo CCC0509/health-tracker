@@ -3,6 +3,8 @@ model NutrientCategory {
     id            Int                   @id @default(autoincrement())
     name          String                @unique // e.g. "巨量營養素", "維生素"
     subcategories NutrientSubcategory[]
+    created_at    DateTime              @default(now())
+    updated_at    DateTime              @updatedAt
 }
 
 //營養素子分類
@@ -13,6 +15,8 @@ model NutrientSubcategory {
     category     NutrientCategory @relation(fields: [categoryId], references: [id])
     categoryId   Int
     FoodNutrient FoodNutrient[]
+    created_at   DateTime         @default(now())
+    updated_at   DateTime         @updatedAt
 
     @@unique([name, categoryId]) // 同類別下不能有同名
 }
@@ -26,6 +30,8 @@ model FoodNutrient {
     nutrientSubcategoryId Int
     servingSize           Float // 例如 50 表示每份 50g
     servingUnit           String // 例如 g、ml、顆
+    created_at            DateTime            @default(now())
+    updated_at            DateTime            @updatedAt
 
     @@unique([foodId, nutrientSubcategoryId]) // 避免重複記錄
 }

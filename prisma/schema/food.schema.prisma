@@ -1,20 +1,22 @@
 //食物主分類(蛋豆魚肉類...)
 model FoodCategory {
-    id             Int               @id @default(autoincrement())
-    name           String            @unique
-    description    String?
-    subcategories  FoodSubcategory[]
-    approvalStatus ApprovalStatus    @default(PENDING)
+    id            Int               @id @default(autoincrement())
+    name          String            @unique
+    description   String?
+    subcategories FoodSubcategory[]
+    created_at    DateTime          @default(now())
+    updated_at    DateTime          @updatedAt
 }
 
 //食物副分類(紅肉,白肉...)
 model FoodSubcategory {
-    id             Int            @id @default(autoincrement())
-    name           String
-    category       FoodCategory   @relation(fields: [categoryId], references: [id])
-    categoryId     Int
-    foods          Food[]
-    approvalStatus ApprovalStatus @default(PENDING)
+    id         Int          @id @default(autoincrement())
+    name       String
+    category   FoodCategory @relation(fields: [categoryId], references: [id])
+    categoryId Int
+    foods      Food[]
+    created_at DateTime     @default(now())
+    updated_at DateTime     @updatedAt
 
     @@unique([name, categoryId]) // 同一主分類下不能有重複子分類名
 }
@@ -30,13 +32,17 @@ model Food {
     Brand         Brand?          @relation(fields: [brandId], references: [id])
     brandId       Int?
     description   String?
+    created_at    DateTime        @default(now())
+    updated_at    DateTime        @updatedAt
 
     @@unique([name, brandId, subcategoryId]) // 食品名稱 + 品牌 + 子分類 不重複
 }
 
 //品牌管理獨立出來
 model Brand {
-    id    Int    @id @default(autoincrement())
-    name  String @unique
-    foods Food[]
+    id         Int      @id @default(autoincrement())
+    name       String   @unique
+    foods      Food[]
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 }

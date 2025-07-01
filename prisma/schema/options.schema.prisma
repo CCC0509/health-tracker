@@ -4,3 +4,9 @@ enum ApprovalStatus {
     APPROVED
     REJECTED
 }
+
+//使用者身分
+enum UserRole {
+    USER
+    ADMIN
+}

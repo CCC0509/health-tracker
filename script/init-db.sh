@@ -4,8 +4,8 @@ set -e
 
 DB_HOST="localhost"
 DB_PORT=5432
-RETRIES=10
-WAIT=3
+RETRIES=5
+WAIT=1
 
 echo "🔍 檢查 PostgreSQL 是否可連線 ($DB_HOST:$DB_PORT)..."
 

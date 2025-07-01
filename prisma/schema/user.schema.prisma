@@ -1,0 +1,8 @@
+model User {
+    id           Int      @id @default(autoincrement())
+    email        String   @unique
+    passwordHash String
+    role         UserRole @default(USER)
+    created_at   DateTime @default(now())
+    updated_at   DateTime @updatedAt
+}
