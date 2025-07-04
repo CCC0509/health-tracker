@@ -1,1 +1,131 @@
+//******** AUTO GENERATED FILE, DO NOT EDIT.  *********
 
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+
+//食物主分類(蛋豆魚肉類...)
+model FoodCategory {
+    id            Int               @id @default(autoincrement())
+    name          String            @unique
+    description   String?
+    subcategories FoodSubcategory[]
+    created_at    DateTime          @default(now())
+    updated_at    DateTime          @updatedAt
+}
+
+//食物副分類(紅肉,白肉...)
+model FoodSubcategory {
+    id         Int          @id @default(autoincrement())
+    name       String
+    category   FoodCategory @relation(fields: [categoryId], references: [id])
+    categoryId Int
+    foods      Food[]
+    created_at DateTime     @default(now())
+    updated_at DateTime     @updatedAt
+
+    @@unique([name, categoryId]) // 同一主分類下不能有重複子分類名
+}
+
+//食品名稱
+model Food {
+    id            Int             @id @default(autoincrement())
+    name          String          @unique
+    subcategory   FoodSubcategory @relation(fields: [subcategoryId], references: [id])
+    subcategoryId Int
+    dataSource    String? // e.g. "衛福部", "MyFitnessPal", "user_input"
+    nutrients     FoodNutrient[]
+    Brand         Brand?          @relation(fields: [brandId], references: [id])
+    brandId       Int?
+    description   String?
+    created_at    DateTime        @default(now())
+    updated_at    DateTime        @updatedAt
+
+    @@unique([name, brandId, subcategoryId]) // 食品名稱 + 品牌 + 子分類 不重複
+}
+
+//品牌管理獨立出來
+model Brand {
+    id         Int      @id @default(autoincrement())
+    name       String   @unique
+    foods      Food[]
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+
+model Image {
+    id        Int      @id @default(autoincrement())
+    filename  String
+    url       String
+    createdAt DateTime @default(now())
+}
+
+
+//營養素分類
+model NutrientCategory {
+    id            Int                   @id @default(autoincrement())
+    name          String                @unique // e.g. "巨量營養素", "維生素"
+    subcategories NutrientSubcategory[]
+    created_at    DateTime              @default(now())
+    updated_at    DateTime              @updatedAt
+}
+
+//營養素子分類
+model NutrientSubcategory {
+    id           Int              @id @default(autoincrement())
+    name         String // e.g. "蛋白質", "維生素C"
+    unit         String // e.g. "g", "mg", "kcal"
+    category     NutrientCategory @relation(fields: [categoryId], references: [id])
+    categoryId   Int
+    FoodNutrient FoodNutrient[]
+    created_at   DateTime         @default(now())
+    updated_at   DateTime         @updatedAt
+
+    @@unique([name, categoryId]) // 同類別下不能有同名
+}
+
+//食物營養素表
+model FoodNutrient {
+    id                    Int                 @id @default(autoincrement())
+    food                  Food                @relation(fields: [foodId], references: [id])
+    foodId                Int
+    nutrientSubcategory   NutrientSubcategory @relation(fields: [nutrientSubcategoryId], references: [id])
+    nutrientSubcategoryId Int
+    servingSize           Float // 例如 50 表示每份 50g
+    servingUnit           String // 例如 g、ml、顆
+    created_at            DateTime            @default(now())
+    updated_at            DateTime            @updatedAt
+
+    @@unique([foodId, nutrientSubcategoryId]) // 避免重複記錄
+}
+
+
+//資料增加申請是否通過
+enum ApprovalStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+//使用者身分
+enum UserRole {
+    USER
+    ADMIN
+}
+
+
+model User {
+    id           Int      @id @default(autoincrement())
+    email        String   @unique
+    passwordHash String
+    role         UserRole @default(USER)
+    created_at   DateTime @default(now())
+    updated_at   DateTime @updatedAt
+}

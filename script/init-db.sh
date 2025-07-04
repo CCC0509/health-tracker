@@ -34,7 +34,7 @@ read -p "> " MODE
 
 # schema merge
 echo "🧩 合併 Prisma schema..."
-npx prisma-merge -i prisma/schema -o prisma/schema.prisma
+npx prisma-merge -b=schema/_base.prisma -s=schema/*.prisma -o=prisma/schema.prisma
 
 # prisma generate
 echo "⚙️ 執行 prisma generate..."

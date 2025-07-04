@@ -1,0 +1,6 @@
+model Image {
+    id        Int      @id @default(autoincrement())
+    filename  String
+    url       String
+    createdAt DateTime @default(now())
+}
