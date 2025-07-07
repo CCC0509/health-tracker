@@ -11,11 +11,13 @@
 - **資料庫**: PostgreSQL
 - **ORM**: Prisma
 - **套件管理器**: npm
+- **API架構**: RESTful api
 
 ## 3. 專案結構
 
 - `src/`: 主要的應用程式原始碼，依功能模組組織。
 - `prisma/`: 包含資料庫結構 (`schema.prisma`)、遷移檔案和種子資料。
+- `schema/`: 將所有資料庫結構分檔建立。
 - `test/`: 端對端 (E2E) 測試。
 - `dist/`: 編譯後的 JavaScript 檔案。
 
