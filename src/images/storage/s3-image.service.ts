@@ -2,7 +2,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ImageStorage } from './image-storage.interface';
 import { ImageProcessorService } from './image-processor.service';
-import { PutObjectCommand, S3, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 @Injectable()
 export class S3ImageService implements ImageStorage {
@@ -21,5 +25,13 @@ export class S3ImageService implements ImageStorage {
     await this.s3.send(commend);
 
     return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/images/${filename}`;
+  }
+
+  async removeImage(filename: string): Promise<void> {
+    const commend = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `images/${filename}`,
+    });
+    await this.s3.send(commend);
   }
 }

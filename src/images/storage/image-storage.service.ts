@@ -19,4 +19,8 @@ export class ImageStorageService implements ImageStorage {
   saveImage(file: Express.Multer.File): Promise<string> {
     return this.impl.saveImage(file);
   }
+
+  removeImage(filename: string): Promise<void> {
+    return this.impl.removeImage(filename);
+  }
 }

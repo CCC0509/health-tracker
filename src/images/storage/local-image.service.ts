@@ -4,7 +4,6 @@ import { ImageStorage } from './image-storage.interface';
 import * as fs from 'fs/promises';
 import { existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import * as sharp from 'sharp';
 import { ImageProcessorService } from './image-processor.service';
 
 @Injectable()
@@ -16,8 +15,17 @@ export class LocalImageService implements ImageStorage {
 
     await fs.writeFile(outputPath, buffer);
 
-    if (existsSync(file.path)) unlinkSync(file.path);
+    return `${filename}`;
+  }
 
-    return `/uploads/${filename}`; // 可被 static serve
+  async removeImage(filename: string): Promise<void> {
+    const path = join(process.cwd(), 'uploads', filename);
+    if (existsSync(path)) {
+      try {
+        unlinkSync(path);
+      } catch (error) {
+        console.warn(`❗ Failed to delete file: ${path}`, error);
+      }
+    }
   }
 }

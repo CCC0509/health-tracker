@@ -2,8 +2,38 @@
 
 set -e
 
+# 選擇環境
+echo ""
+echo "🌍 請選擇執行環境："
+echo "1) 開發（.env）"
+echo "2) 正式（.env.production）"
+read -p "> " ENV_MODE
+
+case "$ENV_MODE" in
+  1)
+    COMPOSE_FILE="docker-compose.dev.yml"
+    ENV_FILE=".env"
+    ENV_MODE="dev"
+    ;;
+  2)
+    COMPOSE_FILE="docker-compose.prod.yml"
+    ENV_FILE=".env.production"
+    ENV_MODE="prod"
+    ;;
+  *)
+    echo "❌ 無效選項"
+    exit 1
+    ;;
+esac
+
+echo "🛠 使用 Compose 檔案：$COMPOSE_FILE"
+echo "🛠 使用環境檔：$ENV_FILE"
+
+# 載入環境變數（支援 DB_HOST, DB_PORT 切換）
+export $(grep -v '^#' "$ENV_FILE" | xargs)
+
 DB_HOST="localhost"
-DB_PORT=5432
+DB_PORT=$(grep DB_PORT "$ENV_FILE" | cut -d '=' -f2 | xargs)
 RETRIES=5
 WAIT=1
 
@@ -14,7 +44,7 @@ for i in $(seq 1 $RETRIES); do
   echo "⏳ 等待 PostgreSQL 第 $i 次... ($WAIT 秒)"
   if [ $i -eq $RETRIES ]; then
     echo "🚫 無法連線 PostgreSQL，嘗試啟動 Docker..."
-    docker-compose up -d
+    docker compose -p "$ENV_MODE" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
     sleep 5
   else
     sleep $WAIT
@@ -70,4 +100,4 @@ case "$MODE" in
     ;;
 esac
 
-echo "✅ 資料庫操作完成"
+echo "✅ [$ENV_FILE]資料庫操作完成"

@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  Delete,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -17,5 +19,11 @@ export class TestController {
   async upload(@UploadedFile() file: Express.Multer.File) {
     const result = await this.imageStorageService.saveImage(file);
     return result;
+  }
+
+  @Delete('remove')
+  async remove(@Body('filename') filename: string) {
+    await this.imageStorageService.removeImage(filename);
+    return 'success';
   }
 }
