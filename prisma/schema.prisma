@@ -60,14 +60,6 @@ model Brand {
 }
 
 
-model Image {
-    id        Int      @id @default(autoincrement())
-    filename  String
-    url       String
-    createdAt DateTime @default(now())
-}
-
-
 //營養素分類
 model NutrientCategory {
     id            Int                   @id @default(autoincrement())

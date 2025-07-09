@@ -10,20 +10,20 @@ echo "2) 正式（.env.production）"
 read -p "> " ENV_MODE
 
 case "$ENV_MODE" in
-  1)
-    COMPOSE_FILE="docker-compose.dev.yml"
-    ENV_FILE=".env"
-    ENV_MODE="dev"
-    ;;
-  2)
-    COMPOSE_FILE="docker-compose.prod.yml"
-    ENV_FILE=".env.production"
-    ENV_MODE="prod"
-    ;;
-  *)
-    echo "❌ 無效選項"
-    exit 1
-    ;;
+1)
+  COMPOSE_FILE="docker-compose.dev.yml"
+  ENV_FILE=".env"
+  ENV_MODE="dev"
+  ;;
+2)
+  COMPOSE_FILE="docker-compose.prod.yml"
+  ENV_FILE=".env.production"
+  ENV_MODE="prod"
+  ;;
+*)
+  echo "❌ 無效選項"
+  exit 1
+  ;;
 esac
 
 echo "🛠 使用 Compose 檔案：$COMPOSE_FILE"
@@ -53,25 +53,35 @@ done
 
 echo "✅ PostgreSQL 可連線"
 
-# 問題選單
+# 選擇要操作資料庫還是關閉容器
 echo ""
 echo "請選擇操作模式："
-echo "1) migrate reset (⚠️ 清除全部資料)"
-echo "2) migrate dev（輸入 commit 訊息）"
-echo "3) migrate deploy"
-echo "4) db push"
+echo "1) 操作資料庫"
+echo "2) 關閉容器"
 read -p "> " MODE
 
-# schema merge
-echo "🧩 合併 Prisma schema..."
-npx prisma-merge -b=schema/_base.prisma -s=schema/*.prisma -o=prisma/schema.prisma
-
-# prisma generate
-echo "⚙️ 執行 prisma generate..."
-npx prisma generate
-
-# 根據選項執行操作
 case "$MODE" in
+1)
+
+  # 問題選單
+  echo ""
+  echo "請選擇操作模式："
+  echo "1) migrate reset (⚠️ 清除全部資料)"
+  echo "2) migrate dev（輸入 commit 訊息）"
+  echo "3) migrate deploy"
+  echo "4) db push"
+  read -p "> " DB_MODE
+
+  # schema merge
+  echo "🧩 合併 Prisma schema..."
+  npx prisma-merge -b=schema/_base.prisma -s=schema/*.prisma -o=prisma/schema.prisma
+
+  # prisma generate
+  echo "⚙️ 執行 prisma generate..."
+  npx prisma generate
+
+  # 根據選項執行操作
+  case "$DB_MODE" in
   1)
     echo "🚨 你選擇了 reset！"
     npx prisma migrate reset --force
@@ -98,6 +108,43 @@ case "$MODE" in
     echo "❌ 無效選項，結束"
     exit 1
     ;;
-esac
+  esac
 
-echo "✅ [$ENV_FILE]資料庫操作完成"
+  echo "✅ [$ENV_FILE]資料庫操作完成"
+  ;;
+2)
+  # 選擇要停止還是刪除容器
+  echo ""
+  echo "請選擇操作模式："
+  echo "1) 停止容器"
+  echo "2) 停止 + 刪除容器與網路（保留資料）"
+  echo "3) 停止 + 刪除容器與網路（刪除資料）"
+  read -p "> " CONTAINER_STOP_MODE
+
+  case "$CONTAINER_STOP_MODE" in
+  1)
+    echo "🛑 停止容器..."
+    docker compose -p "$ENV_MODE" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" stop
+    ;;
+  2)
+    echo "🧹 down：停止 + 刪除容器與網路（保留資料）"
+    docker compose -p "$ENV_MODE" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down
+    ;;
+  3)
+    echo "🔥 down -v：全部刪除（含資料 volume）"
+    docker compose -p "$ENV_MODE" --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down -v
+    ;;
+  *)
+    echo "❌ 無效選項，結束"
+    exit 1
+    ;;
+  esac
+
+  echo ""
+  docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+  ;;
+*)
+  echo "❌ 無效選項，結束"
+  exit 1
+  ;;
+esac
