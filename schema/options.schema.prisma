@@ -10,3 +10,11 @@ enum UserRole {
     USER
     ADMIN
 }
+
+// 資料來源
+enum DataSource {
+    TAIWAN_FDA // 台灣衛福部食藥署
+    MY_FITNESS_PAL
+    USER_INPUT // 使用者自行輸入
+    OTHER // 其他
+}

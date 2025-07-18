@@ -12,7 +12,7 @@ model NutrientSubcategory {
     id           Int              @id @default(autoincrement())
     name         String // e.g. "蛋白質", "維生素C"
     unit         String // e.g. "g", "mg", "kcal"
-    category     NutrientCategory @relation(fields: [categoryId], references: [id])
+    category     NutrientCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     categoryId   Int
     FoodNutrient FoodNutrient[]
     created_at   DateTime         @default(now())
@@ -24,14 +24,21 @@ model NutrientSubcategory {
 //食物營養素表
 model FoodNutrient {
     id                    Int                 @id @default(autoincrement())
-    food                  Food                @relation(fields: [foodId], references: [id])
+    food                  Food                @relation(fields: [foodId], references: [id], onDelete: Cascade)
     foodId                Int
-    nutrientSubcategory   NutrientSubcategory @relation(fields: [nutrientSubcategoryId], references: [id])
+    nutrientSubcategory   NutrientSubcategory @relation(fields: [nutrientSubcategoryId], references: [id], onDelete: Cascade)
     nutrientSubcategoryId Int
-    servingSize           Float // 例如 50 表示每份 50g
-    servingUnit           String // 例如 g、ml、顆
-    created_at            DateTime            @default(now())
-    updated_at            DateTime            @updatedAt
+
+    // 營養素的量，其單位定義在 NutrientSubcategory.unit
+    // 例如: 25.5 (單位: g)
+    value Float
+
+    // 以下定義該營養素數值是基於多少份量的食品
+    // 例如: 每 100 (servingSize) 克 (servingUnit) 的雞胸肉
+    servingSize Float
+    servingUnit String
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
 
     @@unique([foodId, nutrientSubcategoryId]) // 避免重複記錄
 }
